@@ -15,7 +15,7 @@ And you should be ready to go!
    
 ### Help page: 
 #### Compilation:   
-&nbsp;&nbsp;&nbsp;&nbsp;Normal mode: ```g++ -Wall -pedantic -Wextra -O2 main.c   ```
+&nbsp;&nbsp;&nbsp;&nbsp;Normal mode: ```g++ -Wall -pedantic -Wextra -O2 main.c   ```   
 &nbsp;&nbsp;&nbsp;&nbsp;Silent mode (see Options): ```g++ -O2 main.c   ```
     
 #### Script creates temporary file called ".temporeryFile.out". This file is automatically deleted.   
