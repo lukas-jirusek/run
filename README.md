@@ -22,7 +22,7 @@ And you should be ready to go!
 
 #### Options:    
 &nbsp;&nbsp;&nbsp;&nbsp;```-s | --silent```&nbsp;&nbsp;&nbsp;&nbsp;Disables compilation warnings (-Wall -Wextra -pedantic) and other progress messages.   
-&nbsp;&nbsp;&nbsp;&nbsp;```-h | --help```&nbsp;&nbsp;&nbsp;&nbsp;Shows help page (what you are seing right now).   
+&nbsp;&nbsp;&nbsp;&nbsp;```-h | --help```&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Shows help page (what you are seing right now).   
     
 #### Bugs:   
 &nbsp;&nbsp;&nbsp;&nbsp;Cannot pass arguments used by this script ```(-h, --help, -s, --silent)```.   
