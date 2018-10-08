@@ -1,4 +1,4 @@
-# run: Compiles and runs C code.
+# run: Compiles and runs C and C++ code.
 ### Usage: 
 ```
 run [[ -s | --silent ][ -h | --help ]] path/to/c/file [arguments for your program]   
