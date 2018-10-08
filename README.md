@@ -1,4 +1,5 @@
 # run: Compiles and runs C and C++ code.
+## Link: [Code](https://github.com/lukas-jirusek/run/blob/master/run) [RAW](https://raw.githubusercontent.com/lukas-jirusek/run/master/run)
 ### Usage: 
 ```
 run [[ -s | --silent ][ -h | --help ]] path/to/c/file [arguments for your program]   
