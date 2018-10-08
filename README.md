@@ -18,14 +18,14 @@ And you should be ready to go!
 &nbsp;&nbsp;&nbsp;&nbsp;Normal mode: ```g++ -Wall -pedantic -Wextra -O2 main.c   ```   
 &nbsp;&nbsp;&nbsp;&nbsp;Silent mode (see Options): ```g++ -O2 main.c   ```
     
-#### Script creates temporary file called ".temporeryFile.out". This file is automatically deleted.   
+#### Script creates temporary file called ```.temporeryFile.out```. This file is automatically deleted.   
 
 #### Options:    
-&nbsp;&nbsp;&nbsp;&nbsp;-s | --silent		Disables compilation warnings (-Wall -Wextra -pedantic) and other progress messages.   
-&nbsp;&nbsp;&nbsp;&nbsp;-h | --help		Shows help page (what you are seing right now).   
+&nbsp;&nbsp;&nbsp;&nbsp;```-s | --silent```&nbsp;&nbsp;&nbsp;&nbsp;Disables compilation warnings (-Wall -Wextra -pedantic) and other progress messages.   
+&nbsp;&nbsp;&nbsp;&nbsp;```-h | --help```&nbsp;&nbsp;&nbsp;&nbsp;Shows help page (what you are seing right now).   
     
 #### Bugs:   
-&nbsp;&nbsp;&nbsp;&nbsp;Cannot pass arguments used by this script (-h, --help, -s, --silent).   
+&nbsp;&nbsp;&nbsp;&nbsp;Cannot pass arguments used by this script ```(-h, --help, -s, --silent)```.   
    
 #### Possible problems:   
 &nbsp;&nbsp;&nbsp;&nbsp;Not sure if it is capable of passing arguments (did some tests, worked).   
