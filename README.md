@@ -1,6 +1,9 @@
 # run: Compiles and runs C code.
 ### Usage: 
 > &nbsp;&nbsp;&nbsp;&nbsp;run [[ -s | --silent ][ -h | --help ]] path/to/c/file [arguments for your program]   
+### Installation:
+> sudo curl https://raw.githubusercontent.com/lukas-jirusek/run/master/run > /usr/local/bin/run
+> chmod a+x /usr/local/bin/run
 #### Compilation:   
 &nbsp;&nbsp;&nbsp;&nbsp;Normal mode: g++ -Wall -pedantic -Wextra -O2 main.c   
 &nbsp;&nbsp;&nbsp;&nbsp;Silent mode (see Options): g++ -O2 main.c   
