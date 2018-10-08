@@ -5,9 +5,9 @@
 ```
 ### Installation:
 ```
-$ curl https://raw.githubusercontent.com/lukas-jirusek/run/master/run > ~/.run
-$ sudo mv ~/.run /usr/local/bin/run
-$ chmod a+x /usr/local/bin/run   
+curl https://raw.githubusercontent.com/lukas-jirusek/run/master/run > ~/.run
+sudo mv ~/.run /usr/local/bin/run
+chmod a+x /usr/local/bin/run   
 ```
 #### Compilation:   
 &nbsp;&nbsp;&nbsp;&nbsp;Normal mode: g++ -Wall -pedantic -Wextra -O2 main.c   
