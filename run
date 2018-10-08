@@ -1,0 +1,109 @@
+#!/bin/bash 
+silent=0
+help=0
+otherArgs=()
+
+trap ctrl_c INT
+function ctrl_c() {
+    rm .temporaryFile.out
+    echo
+    echo "$(tput setaf 1)""Interrupted by user.""$(tput sgr0)"
+    exit 10
+}
+
+while [[ $# -gt 0 ]]
+do
+    arg="$1"
+    case $arg in
+        -s | --silent)
+            silent=1
+            shift 
+        ;;
+        -h | --help)
+            help=1
+            shift
+        ;;
+        *)
+            otherArgs+=("$1")
+            shift 
+        ;;
+    esac
+done
+if [[ $help -eq 1 ]]
+then
+    echo -e 'Usage: run [[ -s | --silent ][ -h | --help ]] path/to/c/file [arguments for your program]'
+    echo -e '           {            OPTIONAL            } {  REQUIRED  } {         OPTIONAL         }'
+    echo
+    echo -e '\trun: Compiles and runs C code.'
+    echo
+    echo -e '\tCompilation:'
+    echo -e '\t  Normal mode: g++ -Wall -pedantic -Wextra -O2 main.c'
+    echo -e '\t  Silent mode (see Options): g++ -O2 main.c'
+    echo
+    echo -e '\tScript creates temporary file called ".temporeryFile.out". This file is automatically deleted.'
+    echo
+    echo -e '\tOptions: '
+    echo -e '\t  -s | --silent\t\tDisables compilation warnings (-Wall -Wextra -pedantic) and other progress messages.'
+    echo -e '\t  -h | --help\t\tShows help page (what you are seing right now).'
+    echo
+    echo -e '\tBugs:'
+    echo -e '\t  Cannot pass arguments used by this script (-h, --help, -s, --silent).'
+    echo
+    echo -e '\tPossible problems:'
+    echo -e '\t  Not sure if it is capable of passing arguments (did some tests, worked).'
+    echo -e '\t  Not sure if it handles C++ code (did some tests, worked).'
+    echo -e '\t  Not sure if it handles path to C file properly (did some tests, should work).'
+    echo -e '\t  Uses multiple commands, some of those might not be installed on your machine(tput, dirname, basename, g++).'
+    echo -e '\t  Other problem may appear at any time.'
+
+    exit 7
+fi
+set -- "${otherArgs[@]}"
+
+
+if [[ $# -eq 0 ]]
+then
+    echo "$(tput setaf 1)""No source file.""$(tput sgr0)"" Use -h to show help."
+    exit 1
+fi
+
+DIR="$(cd 2>/dev/null -P "$(dirname "$1")" && pwd)"
+if [[ $? -ne 0 ]]
+then
+    echo "$(tput setaf 1)""Path to file doesn't exist.""$(tput sgr0)"
+    exit 3
+fi
+BASENAME="$(basename "$1")"
+cd $DIR
+if [[ ! -f $BASENAME ]]
+then
+    echo "$(tput setaf 1)""File "$(tput setaf 5)""$BASENAME""$(tput setaf 1)" doesn't exist.""$(tput sgr0)"
+    exit 4
+fi
+
+if [[ $silent -eq 0 ]]
+then
+    echo "$(tput setaf 3)"'COMPILING...'"$(tput sgr0)"
+    g++ -Wall -pedantic -Wextra -O2 "$BASENAME" -o '.temporaryFile.out'
+    if [[ "$?" != 0 ]]
+    then
+        echo "$(tput setaf 1)""Compilation error.""$(tput sgr0)" 
+        exit 5
+    fi
+    shift
+    echo "$(tput setaf 3)"'RUNNING PROGRAM:'"$(tput sgr0)"
+    chmod a+x ./.temporaryFile.out
+    ./.temporaryFile.out "$@"
+    rm .temporaryFile.out
+else
+    g++ -O2 "$BASENAME" -o '.temporaryFile.out'
+    if [[ "$?" != 0 ]]
+    then
+        exit 6
+    fi
+    shift
+    chmod a+x ./.temporaryFile.out
+    ./.temporaryFile.out "$@"
+    rm .temporaryFile.out
+fi
+exit 0
