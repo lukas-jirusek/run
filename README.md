@@ -1,9 +1,10 @@
 # run: Compiles and runs C and C++ code.
 ## Link:   
-#### [Code](https://github.com/lukas-jirusek/run/blob/master/run); [RAW](https://raw.githubusercontent.com/lukas-jirusek/run/master/run)
+#### [Link to code.](https://github.com/lukas-jirusek/run/blob/master/run);   
+#### [RAW](https://raw.githubusercontent.com/lukas-jirusek/run/master/run)
 ### Usage: 
 ```
-run [[ -s | --silent ][ -h | --help ]] path/to/c/file [arguments for your program]   
+run [ OPTIONS ] path/to/c/file [ARGUMENTS]   
 ```
 ### Installation:
 Paste following into your terminal:
@@ -25,13 +26,15 @@ And you should be ready to go!
 #### Options:    
 &nbsp;&nbsp;&nbsp;&nbsp;```-s | --silent```&nbsp;&nbsp;Disables compilation warnings (-Wall -Wextra -pedantic) and other progress messages.   
 &nbsp;&nbsp;&nbsp;&nbsp;```-h | --help```&nbsp;&nbsp;Shows help page (what you are seing right now).   
+&nbsp;&nbsp;&nbsp;&nbsp;```-d | --debug```&nbsp;&nbsp;Compiles and launches gdb. (BETA)
+&nbsp;&nbsp;&nbsp;&nbsp;```-i | --input path/to/file```&nbsp;&nbsp;Inputs contents of your file as standart input into your program.
+&nbsp;&nbsp;&nbsp;&nbsp;```-o | --output```&nbsp;&nbsp;Saves text produced by your program into custom file.
     
-#### Bugs:   
-&nbsp;&nbsp;&nbsp;&nbsp;Cannot pass arguments used by this script ```(-h, --help, -s, --silent)```.   
+#### Required packages:   
+&nbsp;&nbsp;&nbsp;&nbsp;```tput, dirbase, basename, g++(duh), gdb (for debugging)```.   
    
-#### Possible problems:   
-&nbsp;&nbsp;&nbsp;&nbsp;Not sure if it is capable of passing arguments (did some tests, worked).   
-&nbsp;&nbsp;&nbsp;&nbsp;Not sure if it handles C++ code (did some tests, worked).   
-&nbsp;&nbsp;&nbsp;&nbsp;Not sure if it handles path to C file properly (did some tests, should work).   
-&nbsp;&nbsp;&nbsp;&nbsp;Uses multiple commands, some of those might not be installed on your machine(tput, dirname, basename, g++).   
-&nbsp;&nbsp;&nbsp;&nbsp;Other problem may appear at any time.   
+#### Known bugs:   
+&nbsp;&nbsp;&nbsp;&nbsp;None known, probably many. Report bugs at https://github.com/lukas-jirusek/run/issues/new.   
+
+#### Author:
+&nbsp;&nbsp;&nbsp;&nbsp;Lukáš Jirůšek, [lukas.jirusek33@gmail.com](mailto:lukas.jirusek33@gmail.com)
