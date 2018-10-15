@@ -47,6 +47,7 @@ function printHelp {
     echo 
     echo -e '\t Author and license:'
     echo -e '\t    Lukáš Jirůšek, lukas.jirusek33@gmail.com, MIT license (https://opensource.org/licenses/MIT) Copyright (c) <2018> <Lukáš Jirůšek>'
+    echo
 
     exit 0
 }
