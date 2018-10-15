@@ -1,6 +1,6 @@
 # run: Compiles and runs C and C++ code.
 ## Link:   
-#### [Link to code.](https://github.com/lukas-jirusek/run/blob/master/run);   
+#### [Link to code](https://github.com/lukas-jirusek/run/blob/master/run)   
 #### [RAW](https://raw.githubusercontent.com/lukas-jirusek/run/master/run)
 ### Usage: 
 ```
@@ -26,9 +26,9 @@ And you should be ready to go!
 #### Options:    
 &nbsp;&nbsp;&nbsp;&nbsp;```-s | --silent```&nbsp;&nbsp;Disables compilation warnings (-Wall -Wextra -pedantic) and other progress messages.   
 &nbsp;&nbsp;&nbsp;&nbsp;```-h | --help```&nbsp;&nbsp;Shows help page (what you are seing right now).   
-&nbsp;&nbsp;&nbsp;&nbsp;```-d | --debug```&nbsp;&nbsp;Compiles and launches gdb. (BETA)
-&nbsp;&nbsp;&nbsp;&nbsp;```-i | --input path/to/file```&nbsp;&nbsp;Inputs contents of your file as standart input into your program.
-&nbsp;&nbsp;&nbsp;&nbsp;```-o | --output```&nbsp;&nbsp;Saves text produced by your program into custom file.
+&nbsp;&nbsp;&nbsp;&nbsp;```-d | --debug```&nbsp;&nbsp;Compiles and launches gdb. (BETA)   
+&nbsp;&nbsp;&nbsp;&nbsp;```-i | --input path/to/file```&nbsp;&nbsp;Inputs contents of your file as standart input into your program.   
+&nbsp;&nbsp;&nbsp;&nbsp;```-o | --output```&nbsp;&nbsp;Saves text produced by your program into custom file.   
     
 #### Required packages:   
 &nbsp;&nbsp;&nbsp;&nbsp;```tput, dirbase, basename, g++(duh), gdb (for debugging)```.   
