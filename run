@@ -176,19 +176,44 @@ do
         -o | --output)
             output=1
             shift
+            if [[ -z "$1" ]]
+            then
+                echo "$(tput setaf 1)No input after -o.$(tput sgr0) Use -h to show help."
+                exit 2
+            fi
             outputPath="$(realpath $1)"
             shift
         ;;
         -i | --input)
             input=1
             shift
+            if [[ -z "$1" ]]
+            then
+                echo "$(tput setaf 1)No input after -i.$(tput sgr0) Use -h to show help."
+                exit 2
+            fi
             inputPath="$(realpath $1)"
+            if [[ ! -f "$inputPath" ]]
+            then
+                echo "$(tput setaf 1)Input file "$inputPath" does not exist."
+                exit 2
+            fi
             shift
         ;;
         -c | --compare)
             compare=1
             shift
+            if [[ -z "$1" ]]
+            then
+                echo "$(tput setaf 1)No input after -c.$(tput sgr0) Use -h to show help."
+                exit 2
+            fi
             comparePath="$(realpath $1)"
+            if [[ ! -f "$comparePath" ]]
+            then
+                echo "$(tput setaf 1)Compared file "$comparePath" does not exist."
+                exit 2
+            fi
             shift
         ;;
         -e | --examples)
