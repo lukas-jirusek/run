@@ -27,11 +27,13 @@ And you should be ready to go!
 &nbsp;&nbsp;&nbsp;&nbsp;```-s | --silent```&nbsp;&nbsp;Disables compilation warnings (-Wall -Wextra -pedantic) and other progress messages.   
 &nbsp;&nbsp;&nbsp;&nbsp;```-h | --help```&nbsp;&nbsp;Shows help page (what you are seing right now).   
 &nbsp;&nbsp;&nbsp;&nbsp;```-d | --debug```&nbsp;&nbsp;Compiles and launches gdb. (BETA)   
-&nbsp;&nbsp;&nbsp;&nbsp;```-i | --input path/to/file```&nbsp;&nbsp;Inputs contents of your file as standart input into your program.   
-&nbsp;&nbsp;&nbsp;&nbsp;```-o | --output```&nbsp;&nbsp;Saves text produced by your program into custom file.   
+&nbsp;&nbsp;&nbsp;&nbsp;```-i | --input path/to/file```&nbsp;&nbsp;Inputs contents of chosen file as standart input into your program.   
+&nbsp;&nbsp;&nbsp;&nbsp;```-o | --output path/to/output```&nbsp;&nbsp;Saves text produced by your program into custom file.   
+&nbsp;&nbsp;&nbsp;&nbsp;```-c | --compare file/to/compare```&nbsp;&nbsp;Compares output of your program with chosen file.   
+&nbsp;&nbsp;&nbsp;&nbsp;```-e | --examples```&nbsp;&nbsp;Shows examples how to use this script.   
     
 #### Required packages:   
-&nbsp;&nbsp;&nbsp;&nbsp;```tput, dirbase, basename, g++(duh), gdb (for debugging)```.   
+&nbsp;&nbsp;&nbsp;&nbsp;```tput, realpath g++(duh), gdb (for debugging), colordiff or diff (for comparing)```.   
    
 #### Known bugs:   
 &nbsp;&nbsp;&nbsp;&nbsp;None known, probably many. Report bugs at https://github.com/lukas-jirusek/run/issues/new.   
