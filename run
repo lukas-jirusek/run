@@ -1,29 +1,35 @@
 #!/bin/bash
-trap ctrl_c INT
-function ctrl_c {
+
+# error codes:
+# 0 - no error
+# 1 - missing package
+# 2 - invalid option
+# 3 - no or non-existing source file
+# 4 - compilation error
+# 5 - interrupted
+
+# trap INT
+trap ctrlC INT
+function ctrlC {
     rm .temporaryFile.out
     echo
     echo "$(tput setaf 1)""Interrupted by user.""$(tput sgr0)"
-    exit 10
+    exit 5
 }
+
+#functions
 function checkPackages {
-    basename --help >/dev/null
+    realpath --help >/dev/null
     if [[ $? -ne 0 ]]
     then
-        echo "$(tput setaf 1)""Missing package:""$(tput sgr0) basename."
-        exit 2
-    fi
-    dirname --help >/dev/null
-    if [[ $? -ne 0 ]]
-    then
-        echo "$(tput setaf 1)""Missing package:""$(tput sgr0) dirname."
-        exit 2
+        echo "$(tput setaf 1)""Missing package:""$(tput sgr0) realpath."
+        exit 1
     fi
     g++ --help >/dev/null
     if [[ $? -ne 0 ]]
     then
         echo "$(tput setaf 1)""Missing package:""$(tput sgr0) g++."
-        exit 2
+        exit 1
     fi
 }
 function printHelp {
@@ -33,14 +39,16 @@ function printHelp {
     echo -e '\t run: Compiles and runs C code. Default compilation: "g++ -Wall -Wextra -pedantic -O2"'
     echo
     echo -e '\t Options: '
-    echo -e '\t    -s | --silent \t\t\t Disables compilation warnings (-Wall -Wextra -pedantic) and other progress messages.'
-    echo -e '\t    -h | --help \t\t\t Shows help page (what you are seing right now).'
-    echo -e '\t    -d | --debug \t\t\t Compiles and launches gdb. (BETA)'
-    echo -e '\t    -i | --input path/to/input \t\t Inputs contents of your file as standart input into your program.'
-    echo -e '\t    -o | --output path/to/output \t Saves text produced by your program into custom file.'
+    echo -e '\t    -s | --silent \t\t\t\t Disables compilation warnings (-Wall -Wextra -pedantic) and other progress messages.'
+    echo -e '\t    -h | --help \t\t\t\t Shows help page (what you are seing right now).'
+    echo -e '\t    -d | --debug \t\t\t\t Compiles and launches gdb. (BETA)'
+    echo -e '\t    -i | --input path/to/input \t\t\t Inputs contents of your file as standart input into your program.'
+    echo -e '\t    -o | --output path/to/output \t\t Saves text produced by your program into custom file.'
+    echo -e '\t    -c | --compare path/to/compared/file \t Compares output of your program with chosen file using diff.'
+    echo -e '\t    -e | --examples \t\t\t\t Shows examples how to use this script.'
     echo
     echo -e '\t Required packages:'
-    echo -e '\t    tput, dirbase, basename, g++(duh), gdb (for debugging)'
+    echo -e '\t    tput, realpath, g++ (duh), gdb (for debugging), colordiff or diff'
     echo 
     echo -e '\t Known bugs:'
     echo -e '\t    None known, probably many. Report bugs at https://github.com/lukas-jirusek/run/issues/new'
@@ -51,7 +59,47 @@ function printHelp {
 
     exit 0
 }
-function debugCode () {
+function compareOutput {
+    g++ -O2 "$cpath" -o '.temporaryFile.out'
+    if [[ "$?" != 0 ]]
+    then
+        exit 4
+    fi
+    if [[ "$input" -eq 1 ]]
+    then
+        cat "$inputPath" | ./.temporaryFile.out "$@" > .temporaryFile2
+        rm .temporaryFile.out
+        compare
+        exit 0
+    else
+        ./.temporaryFile.out "$@" > .temporaryFile2
+        rm .temporaryFile.out
+        compare
+        exit 0
+    fi
+}
+function compare {
+    echo "$(tput setaf 3)"'COMPARING...'"$(tput sgr0)"
+    echo "$(tput setaf 4)"" Old file:                                                    | New file:""$(tput sgr 0)"
+    echo "----------------------------------------------------------------------------------------------------------------------------"
+    colordiff -v >/dev/null
+    if [[ $? -ne 0 ]]
+    then
+        diff -v >/dev/null
+        if [[ $? -ne 0 ]]
+        then
+            echo "$(tput setaf 1)""Required package: diff.""$(tput sgr0)"
+            exit 1
+        else
+            diff -y "$comparePath" .temporaryFile2
+            rm .temporaryFile2
+        fi
+    else
+        colordiff -y "$comparePath" .temporaryFile2
+        rm .temporaryFile2
+    fi
+}
+function debugCode {
     if [[ "$input" -eq 1 ]]
     then
         echo "$(tput setaf 1)"'WARNING:'"$(tput setaf 3)"' input is omitted with debugging enabled'"$(tput sgr0)"
@@ -62,15 +110,14 @@ function debugCode () {
     fi
     if [[ "$silent" -eq 0 ]]
     then 
-        echo "$(tput setaf 3)"'COMPILING...'"$(tput sgr0)"
+        echo "$(tput setaf 3)COMPILING file: $(tput setaf 4) $cpath $(tput sgr0)"
     fi
-    g++ -g -Wall -pedantic -Wextra -O2 "$BASENAME" -o '.temporaryFile.out'
+    g++ -g -Wall -pedantic -Wextra -O2 "$cpath" -o '.temporaryFile.out'
     if [[ "$?" != 0 ]]
     then
         echo "$(tput setaf 1)""Compilation error.""$(tput sgr0)" 
-        exit 5
+        exit 4
     fi
-    chmod a+x ./.temporaryFile.out
     ulimit -c unlimited
     if [[ "$silent" -eq 0 ]]
     then
@@ -80,16 +127,37 @@ function debugCode () {
     rm .temporaryFile.out
     exit 0
 }
+function printExamples {
+    echo -e '\t Examples:'
+    echo -e '\t    run main.c \t\t\t\t compiles code with all warnings, then launches the program'
+    echo -e '\t    run -s -i input main.c \t\t compiles code without warnings, inserts content of "input" when launching program'
+    echo -e '\t    run -o output main.c \t\t compiles and launches program, saves output into "output"'
+    echo -e '\t    run -i input -o output \t\t compiles code, inserts "input" when launching, saves output into "output"'
+    echo -e '\t    run -d main.c \t\t\t compiles code, launches gdb debugger'
+    echo -e '\t    run -c text -i input main.c \t inserts content of "input" into program, compares program output with file "text"'
+    echo -e '\t    run main.c argument1 argument2 \t passes arguments to program when launched'
+    exit 0
+}
+
+#check if required programs are installed
 checkPackages
+
+#reset values
 stop=0
+
 silent=0
 help=0
 debug=0
-input=0
 output=0
+input=0
+compare=0
+inputPath=''
+outputPath=''
+comparePath=''
 otherArgs=()
 
-while [[ stop -eq 0 ]] #Parse arguments
+#parse args
+while [[ stop -eq 0 ]]
 do
     arg="$1"
     case $arg in
@@ -98,7 +166,7 @@ do
             shift 
         ;;
         -h | --help)
-            help=1
+            printHelp
             shift
         ;;
         -d | --debug)
@@ -108,131 +176,120 @@ do
         -o | --output)
             output=1
             shift
-            outputFile="$1"
+            outputPath="$(realpath $1)"
             shift
         ;;
         -i | --input)
             input=1
             shift
-            inputFile="$1"
+            inputPath="$(realpath $1)"
             shift
         ;;
+        -c | --compare)
+            compare=1
+            shift
+            comparePath="$(realpath $1)"
+            shift
+        ;;
+        -e | --examples)
+            printExamples
+        ;;
         *)
+            echo "$1" | grep -E '^-' > /dev/null
+            if [[ $? -eq 0 ]]
+            then 
+                echo "$(tput setaf 1)""Invalid option: $1.""$(tput sgr0)"" Use -h to show help."
+                exit 2
+            fi
             stop=1
             otherArgs=("$@")
-            shift 
+            shift
         ;;
     esac
 done
-
-# Debug:
-# echo "-s=$silent; -h=$help; -d=$debug; -o=$output; outputFile=$outputFile; -i=$input; inputFile=$inputFile" 
-#echo "otherArgs= $@"
-#exit 0
-
-if [[ $help -eq 1 ]] #Show help
-then
-    printHelp
-fi
-
 set -- "${otherArgs[@]}"
 
+#check path to C file
 if [[ $# -eq 0 ]]
 then
     echo "$(tput setaf 1)""No source file.""$(tput sgr0)"" Use -h to show help."
-    exit 1
-fi
-
-DIR="$(cd 2>/dev/null -P "$(dirname "$1")" && pwd)"
-if [[ $? -ne 0 ]]
-then
-    echo "$(tput setaf 1)""Path to file doesn't exist.""$(tput sgr0)"
     exit 3
 fi
-BASENAME="$(basename "$1")"
-cd $DIR
-if [[ ! -f $BASENAME ]]
+cpath="$(realpath $1)"
+if [[ ! -f $cpath ]]
 then
-    echo "$(tput setaf 1)""File "$(tput setaf 5)""$BASENAME""$(tput setaf 1)" doesn't exist.""$(tput sgr0)"
-    exit 4
+    echo "$(tput setaf 1)""File "$(tput setaf 5)""$cpath""$(tput setaf 1)" doesn't exist.""$(tput sgr0)"
+    exit 3
 fi
 
+#move C file from arguments
 shift
 
-if [[ debug -eq 1 ]]   #Debug code
+#launch Compare mode
+if [[ "$compare" -eq 1 ]]   
+then
+    compareOutput
+fi
+
+#launch Debug mode
+if [[ "$debug" -eq 1 ]]
 then
     debugCode
 fi
 
-if [[ $silent -eq 0 ]] #Verbose compilation
+#Compilation
+if [[ $silent -eq 0 ]]
 then
-    echo "$(tput setaf 3)"'COMPILING...'"$(tput sgr0)"
-    g++ -Wall -pedantic -Wextra -O2 "$BASENAME" -o '.temporaryFile.out'
+    echo "$(tput setaf 3)COMPILING file: $(tput setaf 4) $cpath $(tput sgr0)"
+fi
+if [[ $silent -eq 0 ]]
+then    #Compilation with warnings
+    g++ -Wall -pedantic -Wextra -O2 "$cpath" -o '.temporaryFile.out'
     if [[ "$?" != 0 ]]
     then
         echo "$(tput setaf 1)""Compilation error.""$(tput sgr0)" 
-        exit 5
+        exit 4
     fi
-    echo "$(tput setaf 3)"'RUNNING PROGRAM:'"$(tput sgr0)"
-    chmod a+x ./.temporaryFile.out
-    if [[ input -eq 1 ]]
-    then
-        if [[ "$input" = "$output" ]]
-        then
-            echo "$(tput setaf 1)"'WARNING:'"$(tput setaf 3)"' input and output files are the same'"$(tput sgr0)"
-        fi
-        if [[ output -eq 1 ]]
-        then
-            cat "$inputFile" | ./.temporaryFile.out "$@" > "$outputFile"
-            rm .temporaryFile.out
-            exit 0
-        else
-            cat "$inputFile" | ./.temporaryFile.out "$@"
-            rm .temporaryFile.out
-            exit 0
-        fi
-    else
-        if [[ output -eq 1 ]]
-        then
-            ./.temporaryFile.out "$@" > "$outputFile"
-            rm .temporaryFile.out
-            exit 0
-        else
-            ./.temporaryFile.out "$@"
-            rm .temporaryFile.out
-            exit 0
-        fi
-    fi
-else                   #Silent compilation
-    g++ -O2 "$BASENAME" -o '.temporaryFile.out'
+else    #Compilation without warnings
+    g++ -O2 "$cpath" -o '.temporaryFile.out'
     if [[ "$?" != 0 ]]
     then
-        exit 6
+        echo "$(tput setaf 1)""Compilation error.""$(tput sgr0)" 
+        exit 4
     fi
-    chmod a+x ./.temporaryFile.out
-    if [[ input -eq 1 ]]
+fi
+
+#Launching program
+if [[ $silent -eq 0 ]]
+then
+    echo "$(tput setaf 3)"'RUNNING PROGRAM:'"$(tput sgr0)"
+fi
+
+if [[ input -eq 1 ]]
+then
+    if [[ "$inputPath" = "$outputPath" ]]
     then
-        if [[ output -eq 1 ]]
+        if [[ $silent -eq 0 ]]
         then
-            cat "$inputFile" | ./.temporaryFile.out "$@" > "$outputFile"
-            rm .temporaryFile.out
-            exit 0
-        else
-            cat "$inputFile" | ./.temporaryFile.out "$@"
-            rm .temporaryFile.out
-            exit 0
+            echo "$(tput setaf 1)WARNING: $(tput sgr0)Input and output files are the same."
         fi
+    fi
+    if [[ output -eq 1 ]]
+    then
+        cat "$inputPath" | ./.temporaryFile.out "$@" > "$outputPath"
+        rm .temporaryFile.out
     else
-        if [[ output -eq 1 ]]
-        then
-            ./.temporaryFile.out "$@" > "$outputFile"
-            rm .temporaryFile.out
-            exit 0
-        else
-            ./.temporaryFile.out "$@"
-            rm .temporaryFile.out
-            exit 0
-        fi
+        cat "$inputPath" | ./.temporaryFile.out "$@"
+        rm .temporaryFile.out
+    fi
+else
+    if [[ output -eq 1 ]]
+    then
+        ./.temporaryFile.out "$@" > "$outputPath"
+        rm .temporaryFile.out
+    else
+        ./.temporaryFile.out "$@"
+        rm .temporaryFile.out
     fi
 fi
 exit 0
