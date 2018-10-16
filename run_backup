@@ -1,0 +1,238 @@
+#!/bin/bash
+trap ctrl_c INT
+function ctrl_c {
+    rm .temporaryFile.out
+    echo
+    echo "$(tput setaf 1)""Interrupted by user.""$(tput sgr0)"
+    exit 10
+}
+function checkPackages {
+    basename --help >/dev/null
+    if [[ $? -ne 0 ]]
+    then
+        echo "$(tput setaf 1)""Missing package:""$(tput sgr0) basename."
+        exit 2
+    fi
+    dirname --help >/dev/null
+    if [[ $? -ne 0 ]]
+    then
+        echo "$(tput setaf 1)""Missing package:""$(tput sgr0) dirname."
+        exit 2
+    fi
+    g++ --help >/dev/null
+    if [[ $? -ne 0 ]]
+    then
+        echo "$(tput setaf 1)""Missing package:""$(tput sgr0) g++."
+        exit 2
+    fi
+}
+function printHelp {
+    echo -e '\t Usage: run [ OPTIONS  ] path/to/c/file [ ARGUMENTS TO YOUR C PROGRAM ]'
+    echo -e '\t            { OPTIONAL } {  REQUIRED  } {          OPTIONAL           }'
+    echo
+    echo -e '\t run: Compiles and runs C code. Default compilation: "g++ -Wall -Wextra -pedantic -O2"'
+    echo
+    echo -e '\t Options: '
+    echo -e '\t    -s | --silent \t\t\t Disables compilation warnings (-Wall -Wextra -pedantic) and other progress messages.'
+    echo -e '\t    -h | --help \t\t\t Shows help page (what you are seing right now).'
+    echo -e '\t    -d | --debug \t\t\t Compiles and launches gdb. (BETA)'
+    echo -e '\t    -i | --input path/to/input \t\t Inputs contents of your file as standart input into your program.'
+    echo -e '\t    -o | --output path/to/output \t Saves text produced by your program into custom file.'
+    echo
+    echo -e '\t Required packages:'
+    echo -e '\t    tput, dirbase, basename, g++(duh), gdb (for debugging)'
+    echo 
+    echo -e '\t Known bugs:'
+    echo -e '\t    None known, probably many. Report bugs at https://github.com/lukas-jirusek/run/issues/new'
+    echo 
+    echo -e '\t Author and license:'
+    echo -e '\t    Lukáš Jirůšek, lukas.jirusek33@gmail.com, MIT license (https://opensource.org/licenses/MIT) Copyright (c) <2018> <Lukáš Jirůšek>'
+    echo
+
+    exit 0
+}
+function debugCode () {
+    if [[ "$input" -eq 1 ]]
+    then
+        echo "$(tput setaf 1)"'WARNING:'"$(tput setaf 3)"' input is omitted with debugging enabled'"$(tput sgr0)"
+    fi
+    if [[ "$output" -eq 1 ]]
+    then
+        echo "$(tput setaf 1)"'WARNING:'"$(tput setaf 3)"' output is omitted with debugging enabled'"$(tput sgr0)"
+    fi
+    if [[ "$silent" -eq 0 ]]
+    then 
+        echo "$(tput setaf 3)"'COMPILING...'"$(tput sgr0)"
+    fi
+    g++ -g -Wall -pedantic -Wextra -O2 "$BASENAME" -o '.temporaryFile.out'
+    if [[ "$?" != 0 ]]
+    then
+        echo "$(tput setaf 1)""Compilation error.""$(tput sgr0)" 
+        exit 5
+    fi
+    chmod a+x ./.temporaryFile.out
+    ulimit -c unlimited
+    if [[ "$silent" -eq 0 ]]
+    then
+        echo "$(tput setaf 3)"'STARTING DEBUGGING...'"$(tput sgr0)"
+    fi
+    gdb '.temporaryFile.out'
+    rm .temporaryFile.out
+    exit 0
+}
+checkPackages
+stop=0
+silent=0
+help=0
+debug=0
+input=0
+output=0
+otherArgs=()
+
+while [[ stop -eq 0 ]] #Parse arguments
+do
+    arg="$1"
+    case $arg in
+        -s | --silent)
+            silent=1
+            shift 
+        ;;
+        -h | --help)
+            help=1
+            shift
+        ;;
+        -d | --debug)
+            debug=1
+            shift
+        ;;
+        -o | --output)
+            output=1
+            shift
+            outputFile="$1"
+            shift
+        ;;
+        -i | --input)
+            input=1
+            shift
+            inputFile="$1"
+            shift
+        ;;
+        *)
+            stop=1
+            otherArgs=("$@")
+            shift 
+        ;;
+    esac
+done
+
+# Debug:
+# echo "-s=$silent; -h=$help; -d=$debug; -o=$output; outputFile=$outputFile; -i=$input; inputFile=$inputFile" 
+#echo "otherArgs= $@"
+#exit 0
+
+if [[ $help -eq 1 ]] #Show help
+then
+    printHelp
+fi
+
+set -- "${otherArgs[@]}"
+
+if [[ $# -eq 0 ]]
+then
+    echo "$(tput setaf 1)""No source file.""$(tput sgr0)"" Use -h to show help."
+    exit 1
+fi
+
+DIR="$(cd 2>/dev/null -P "$(dirname "$1")" && pwd)"
+if [[ $? -ne 0 ]]
+then
+    echo "$(tput setaf 1)""Path to file doesn't exist.""$(tput sgr0)"
+    exit 3
+fi
+BASENAME="$(basename "$1")"
+cd $DIR
+if [[ ! -f $BASENAME ]]
+then
+    echo "$(tput setaf 1)""File "$(tput setaf 5)""$BASENAME""$(tput setaf 1)" doesn't exist.""$(tput sgr0)"
+    exit 4
+fi
+
+shift
+
+if [[ debug -eq 1 ]]   #Debug code
+then
+    debugCode
+fi
+
+if [[ $silent -eq 0 ]] #Verbose compilation
+then
+    echo "$(tput setaf 3)"'COMPILING...'"$(tput sgr0)"
+    g++ -Wall -pedantic -Wextra -O2 "$BASENAME" -o '.temporaryFile.out'
+    if [[ "$?" != 0 ]]
+    then
+        echo "$(tput setaf 1)""Compilation error.""$(tput sgr0)" 
+        exit 5
+    fi
+    echo "$(tput setaf 3)"'RUNNING PROGRAM:'"$(tput sgr0)"
+    chmod a+x ./.temporaryFile.out
+    if [[ input -eq 1 ]]
+    then
+        if [[ "$input" = "$output" ]]
+        then
+            echo "$(tput setaf 1)"'WARNING:'"$(tput setaf 3)"' input and output files are the same'"$(tput sgr0)"
+        fi
+        if [[ output -eq 1 ]]
+        then
+            cat "$inputFile" | ./.temporaryFile.out "$@" > "$outputFile"
+            rm .temporaryFile.out
+            exit 0
+        else
+            cat "$inputFile" | ./.temporaryFile.out "$@"
+            rm .temporaryFile.out
+            exit 0
+        fi
+    else
+        if [[ output -eq 1 ]]
+        then
+            ./.temporaryFile.out "$@" > "$outputFile"
+            rm .temporaryFile.out
+            exit 0
+        else
+            ./.temporaryFile.out "$@"
+            rm .temporaryFile.out
+            exit 0
+        fi
+    fi
+else                   #Silent compilation
+    g++ -O2 "$BASENAME" -o '.temporaryFile.out'
+    if [[ "$?" != 0 ]]
+    then
+        exit 6
+    fi
+    chmod a+x ./.temporaryFile.out
+    if [[ input -eq 1 ]]
+    then
+        if [[ output -eq 1 ]]
+        then
+            cat "$inputFile" | ./.temporaryFile.out "$@" > "$outputFile"
+            rm .temporaryFile.out
+            exit 0
+        else
+            cat "$inputFile" | ./.temporaryFile.out "$@"
+            rm .temporaryFile.out
+            exit 0
+        fi
+    else
+        if [[ output -eq 1 ]]
+        then
+            ./.temporaryFile.out "$@" > "$outputFile"
+            rm .temporaryFile.out
+            exit 0
+        else
+            ./.temporaryFile.out "$@"
+            rm .temporaryFile.out
+            exit 0
+        fi
+    fi
+fi
+exit 0
