@@ -11,7 +11,7 @@
 # trap INT
 trap ctrlC INT
 function ctrlC {
-    rm .temporaryFile.out
+    rm /tmp/.temporaryFile.out
     echo
     echo "$(tput setaf 1)""Interrupted by user.""$(tput sgr0)"
     exit 5
@@ -60,20 +60,20 @@ function printHelp {
     exit 0
 }
 function compareOutput {
-    g++ -O2 "$cpath" -o '.temporaryFile.out'
+    g++ -O2 "$cpath" -o '/tmp/.temporaryFile.out'
     if [[ "$?" != 0 ]]
     then
         exit 4
     fi
     if [[ "$input" -eq 1 ]]
     then
-        cat "$inputPath" | ./.temporaryFile.out "$@" > .temporaryFile2
-        rm .temporaryFile.out
+        cat "$inputPath" | /tmp/.temporaryFile.out "$@" > /tmp/.temporaryFile2
+        rm /tmp/.temporaryFile.out
         compare
         exit 0
     else
-        ./.temporaryFile.out "$@" > .temporaryFile2
-        rm .temporaryFile.out
+        /tmp/.temporaryFile.out "$@" > /tmp/.temporaryFile2
+        rm /tmp/.temporaryFile.out
         compare
         exit 0
     fi
@@ -91,15 +91,16 @@ function compare {
             echo "$(tput setaf 1)""Required package: diff.""$(tput sgr0)"
             exit 1
         else
-            diff -y "$comparePath" .temporaryFile2
-            rm .temporaryFile2
+            diff -y "$comparePath" /tmp/.temporaryFile2
+            rm /tmp/.temporaryFile2
         fi
     else
-        colordiff -y "$comparePath" .temporaryFile2
-        rm .temporaryFile2
+        colordiff -y "$comparePath" /tmp/.temporaryFile2
+        rm /tmp/.temporaryFile2
     fi
 }
 function debugCode {
+    ulimit -c unlimited
     if [[ "$input" -eq 1 ]]
     then
         echo "$(tput setaf 1)"'WARNING:'"$(tput setaf 3)"' input is omitted with debugging enabled'"$(tput sgr0)"
@@ -112,19 +113,18 @@ function debugCode {
     then 
         echo "$(tput setaf 3)COMPILING file: $(tput setaf 4) $cpath $(tput sgr0)"
     fi
-    g++ -g -Wall -pedantic -Wextra -O2 "$cpath" -o '.temporaryFile.out'
+    g++ -g -Wall -pedantic -Wextra -O2 "$cpath" -o '/tmp/.temporaryFile.out'
     if [[ "$?" != 0 ]]
     then
         echo "$(tput setaf 1)""Compilation error.""$(tput sgr0)" 
         exit 4
     fi
-    ulimit -c unlimited
     if [[ "$silent" -eq 0 ]]
     then
         echo "$(tput setaf 3)"'STARTING DEBUGGING...'"$(tput sgr0)"
     fi
-    gdb '.temporaryFile.out'
-    rm .temporaryFile.out
+    gdb '/tmp/.temporaryFile.out'
+    rm /tmp/.temporaryFile.out
     exit 0
 }
 function printExamples {
@@ -170,6 +170,12 @@ do
             shift
         ;;
         -d | --debug)
+            gdb -v >/dev/null
+            if [[ $? -ne 0 ]]
+            then
+                echo "$(tput setaf 1)""Missing package:""$(tput sgr0) gdb."
+                exit 1
+            fi
             debug=1
             shift
         ;;
@@ -269,14 +275,14 @@ then
 fi
 if [[ $silent -eq 0 ]]
 then    #Compilation with warnings
-    g++ -Wall -pedantic -Wextra -O2 "$cpath" -o '.temporaryFile.out'
+    g++ -Wall -pedantic -Wextra -O2 "$cpath" -o '/tmp/.temporaryFile.out'
     if [[ "$?" != 0 ]]
     then
         echo "$(tput setaf 1)""Compilation error.""$(tput sgr0)" 
         exit 4
     fi
 else    #Compilation without warnings
-    g++ -O2 "$cpath" -o '.temporaryFile.out'
+    g++ -O2 "$cpath" -o '/tmp/.temporaryFile.out'
     if [[ "$?" != 0 ]]
     then
         echo "$(tput setaf 1)""Compilation error.""$(tput sgr0)" 
@@ -301,20 +307,20 @@ then
     fi
     if [[ output -eq 1 ]]
     then
-        cat "$inputPath" | ./.temporaryFile.out "$@" > "$outputPath"
-        rm .temporaryFile.out
+        cat "$inputPath" | /tmp/.temporaryFile.out "$@" > "$outputPath"
+        rm /tmp/.temporaryFile.out
     else
-        cat "$inputPath" | ./.temporaryFile.out "$@"
-        rm .temporaryFile.out
+        cat "$inputPath" | /tmp/.temporaryFile.out "$@"
+        rm /tmp/.temporaryFile.out
     fi
 else
     if [[ output -eq 1 ]]
     then
-        ./.temporaryFile.out "$@" > "$outputPath"
-        rm .temporaryFile.out
+        /tmp/.temporaryFile.out "$@" > "$outputPath"
+        rm /tmp/.temporaryFile.out
     else
-        ./.temporaryFile.out "$@"
-        rm .temporaryFile.out
+        /tmp/.temporaryFile.out "$@"
+        rm /tmp/.temporaryFile.out
     fi
 fi
 exit 0
