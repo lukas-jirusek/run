@@ -20,8 +20,6 @@ And you should be ready to go!
 #### Compilation:   
 &nbsp;&nbsp;&nbsp;&nbsp;Normal mode: ```g++ -Wall -pedantic -Wextra -O2 main.c   ```   
 &nbsp;&nbsp;&nbsp;&nbsp;Silent mode (see Options): ```g++ -O2 main.c   ```
-    
-#### Script creates temporary file called ```.temporeryFile.out```. This file is automatically deleted.   
 
 #### Options:    
 &nbsp;&nbsp;&nbsp;&nbsp;```-s | --silent```&nbsp;&nbsp;Disables compilation warnings (-Wall -Wextra -pedantic) and other progress messages.   
