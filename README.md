@@ -31,7 +31,7 @@ And you should be ready to go!
 &nbsp;&nbsp;&nbsp;&nbsp;```-o | --output path/to/output```&nbsp;&nbsp;Saves text produced by your program into custom file.   
 &nbsp;&nbsp;&nbsp;&nbsp;```-c | --compare file/to/compare```&nbsp;&nbsp;Compares output of your program with chosen file.   
 &nbsp;&nbsp;&nbsp;&nbsp;```-e | --examples```&nbsp;&nbsp;Shows examples how to use this script.   
-&nbsp;&nbsp;&nbsp;&nbsp;```-v | --version```Show version of this script, g++, gdb, realpath and diff.   
+&nbsp;&nbsp;&nbsp;&nbsp;```-v | --version```&nbsp;&nbsp;Show version of this script, g++, gdb, realpath and diff.   
     
 #### Required packages:   
 &nbsp;&nbsp;&nbsp;&nbsp;```tput, realpath g++(duh), gdb (for debugging), colordiff or diff (for comparing)```.   
