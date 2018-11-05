@@ -57,13 +57,10 @@ function printHelp {
     echo
     echo -e '\t Required packages:'
     echo -e '\t    tput, realpath, g++ (duh), gdb (for debugging), colordiff or diff'
-    echo 
     echo -e '\t Known bugs:'
     echo -e '\t    None known, probably many. Report bugs at https://github.com/lukas-jirusek/run/issues/new'
-    echo 
     echo -e '\t Author and license:'
     echo -e '\t    Lukáš Jirůšek, lukas.jirusek33@gmail.com, MIT license (https://opensource.org/licenses/MIT) Copyright (c) <2018> <Lukáš Jirůšek>'
-    echo
 
     exit 0
 }
