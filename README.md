@@ -22,9 +22,11 @@ And you should be ready to go!
 &nbsp;&nbsp;&nbsp;&nbsp;Silent mode (see Options): ```g++ -O2 main.c   ```
 
 #### Options:    
+&nbsp;&nbsp;&nbsp;&nbsp;```-8```&nbsp;&nbsp;Use g++-8 instead of g++.   
 &nbsp;&nbsp;&nbsp;&nbsp;```-s | --silent```&nbsp;&nbsp;Disables compilation warnings (-Wall -Wextra -pedantic) and other progress messages.   
 &nbsp;&nbsp;&nbsp;&nbsp;```-h | --help```&nbsp;&nbsp;Shows help page (what you are seing right now).   
 &nbsp;&nbsp;&nbsp;&nbsp;```-d | --debug```&nbsp;&nbsp;Compiles and launches gdb. (BETA)   
+&nbsp;&nbsp;&nbsp;&nbsp;```-dh | --debughelp | debugHelp```&nbsp;&nbsp;Show basic gdb commands.
 &nbsp;&nbsp;&nbsp;&nbsp;```-i | --input path/to/file```&nbsp;&nbsp;Inputs contents of chosen file as standart input into your program.   
 &nbsp;&nbsp;&nbsp;&nbsp;```-o | --output path/to/output```&nbsp;&nbsp;Saves text produced by your program into custom file.   
 &nbsp;&nbsp;&nbsp;&nbsp;```-c | --compare file/to/compare```&nbsp;&nbsp;Compares output of your program with chosen file.   
