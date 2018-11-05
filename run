@@ -25,7 +25,12 @@ function checkPackages {
         echo "$(tput setaf 1)""Missing package:""$(tput sgr0) realpath."
         exit 1
     fi
-    g++ --help >/dev/null
+    if [[ newg -eq 1 ]]
+    then
+        g++-8 --help >/dev/null
+    else
+        g++ --help >/dev/null
+    fi
     if [[ $? -ne 0 ]]
     then
         echo "$(tput setaf 1)""Missing package:""$(tput sgr0) g++."
@@ -39,9 +44,11 @@ function printHelp {
     echo -e '\t run: Compiles and runs C code. Default compilation: "g++ -Wall -Wextra -pedantic -O2"'
     echo
     echo -e '\t Options: '
+    echo -e '\t    -8 \t\t\t\t\t\t Use g++-8 instead of g++.'
     echo -e '\t    -s | --silent \t\t\t\t Disables compilation warnings (-Wall -Wextra -pedantic) and other progress messages.'
     echo -e '\t    -h | --help \t\t\t\t Shows help page (what you are seing right now).'
     echo -e '\t    -d | --debug \t\t\t\t Compiles and launches gdb. (BETA)'
+    echo -e '\t    -dh | --debughelp | debugHelp \t\t Show basic gdb commands.'
     echo -e '\t    -i | --input path/to/input \t\t\t Inputs contents of your file as standart input into your program.'
     echo -e '\t    -o | --output path/to/output \t\t Saves text produced by your program into custom file.'
     echo -e '\t    -c | --compare path/to/compared/file \t Compares output of your program with chosen file using diff.'
@@ -61,7 +68,12 @@ function printHelp {
     exit 0
 }
 function compareOutput {
-    g++ -O2 "$cpath" -o '/tmp/.temporaryFile.out'
+    if [[ newg -eq 1 ]]
+    then
+        g++-8 -std=c++17 -O2 "$cpath" -o '/tmp/.temporaryFile.out'
+    else
+        g++ -O2 "$cpath" -o '/tmp/.temporaryFile.out'
+    fi
     if [[ "$?" != 0 ]]
     then
         exit 4
@@ -114,7 +126,12 @@ function debugCode {
     then 
         echo "$(tput setaf 3)COMPILING file: $(tput setaf 4) $cpath $(tput sgr0)"
     fi
-    g++ -g -Wall -pedantic -Wextra -O2 "$cpath" -o '/tmp/.temporaryFile.out'
+    if [[ newg -eq 1 ]]
+    then
+        g++-8 -std=c++17 -g -Wall -pedantic -Wextra "$cpath" -o '/tmp/.temporaryFile.out'
+    else
+        g++ -g -Wall -pedantic -Wextra "$cpath" -o '/tmp/.temporaryFile.out'
+    fi
     if [[ "$?" != 0 ]]
     then
         echo "$(tput setaf 1)""Compilation error.""$(tput sgr0)" 
@@ -128,6 +145,20 @@ function debugCode {
     rm /tmp/.temporaryFile.out
     exit 0
 }
+function debugHelp {
+    echo -e "\t "$(tput setaf 3)"gdb commands:$(tput sgr0)"
+    echo -e "\t "$(tput setaf 3)"b N | +N | function$(tput sgr0) - add breakpoint at line N | +N lines from current line | at beginning of function"
+    echo -e "\t "$(tput setaf 3)"info break$(tput sgr0) - list of breakpoints"
+    echo -e "\t "$(tput setaf 3)"d N$(tput sgr0) - delete breakpoint number N (see info break)"
+    echo -e "\t "$(tput setaf 3)"r$(tput sgr0) - run program until breakpoint or error"
+    echo -e "\t "$(tput setaf 3)"c$(tput sgr0) - continue running program until breakpoint or error"
+    echo -e "\t "$(tput setaf 3)"f$(tput sgr0) - run until end of function"
+    echo -e "\t "$(tput setaf 3)"s N$(tput sgr0) - run next N lines (no N = 1 line)"
+    echo -e "\t "$(tput setaf 3)"n$(tput sgr0) - same as S, do not step into functions"
+    echo -e "\t "$(tput setaf 3)"p var$(tput sgr0) - print value of 'var'"
+    echo -e "\t "$(tput setaf 3)"info locals$(tput sgr0) - print values of all variables"
+    echo -e "\t "$(tput setaf 3)"q$(tput sgr0) - quit gdb"
+}
 function printExamples {
     echo -e '\t Examples:'
     echo -e '\t    run main.c \t\t\t\t compiles code with all warnings, then launches the program'
@@ -140,11 +171,26 @@ function printExamples {
     exit 0
 }
 function printVersion {
-    echo -e '\t Script version: 1.0'
-    gccv="$(g++ -v 2>&1 | tail -1)"
-    echo -e '\t g++ version: '"$gccv"
-    gdbv="$(gdb -v | head -1)"
-    echo -e '\t gdb version: '"$gdbv"
+    echo -e "$(tput setaf 2)"'\t Script version: 1.1'"$(tput sgr0)"
+    if [[ newg -eq 1 ]]
+    then
+        gccv="$(g++-8 -v 2>&1 | tail -1)"
+        echo -e '\t g++-8 version: '"$gccv"
+    else
+        gccv="$(g++ -v 2>&1 | tail -1)"
+        echo -e '\t g++ version: '"$gccv"
+    fi
+    if [[ debug -eq 1 ]]
+    then
+        gdb -v >/dev/null
+        if [[ $? -ne 0 ]]
+        then
+            echo "$(tput setaf 1)""Missing package:""$(tput sgr0) gdb."
+            exit 1
+        fi
+        gdbv="$(gdb -v | head -1)"
+        echo -e '\t gdb version: '"$gdbv"
+    fi
     realv="$(realpath --version | head -1)"
     echo -e '\t realpath version: '"$realv"
     diffv=$(diff -v | head -1)
@@ -160,6 +206,8 @@ debug=0
 output=0
 input=0
 compare=0
+newg=0
+version=0
 inputPath=''
 outputPath=''
 comparePath=''
@@ -170,6 +218,16 @@ while [[ stop -eq 0 ]]
 do
     arg="$1"
     case $arg in
+        -8)
+            newg=1
+            shift
+            g++-8 -v 2>/dev/null
+            if [[ $? -ne 0 ]]
+            then
+                echo "$(tput setaf 1)""Missing package:""$(tput sgr0) g++-8."
+                exit 1
+            fi
+        ;;
         -s | --silent)
             silent=1
             shift 
@@ -233,16 +291,15 @@ do
         ;;
         -e | --examples)
             printExamples
+            exit 0
         ;;
         -v | --version)
-            gdb -v >/dev/null
-                if [[ $? -ne 0 ]]
-                then
-                    echo "$(tput setaf 1)""Missing package:""$(tput sgr0) gdb."
-                    exit 1
-                fi
-            checkPackages
-            printVersion
+            version=1
+            shift
+        ;;
+        -dh | --debugHelp | --debughelp)
+            debugHelp
+            exit 0
         ;;
         *)
             echo "$1" | grep -E '^-' > /dev/null
@@ -260,6 +317,12 @@ done
 set -- "${otherArgs[@]}"
 
 #check if required programs are installed
+
+if [[ version -eq 1 ]]
+then
+    printVersion
+    exit 0
+fi
 checkPackages
 
 #check path to C file
@@ -297,14 +360,24 @@ then
 fi
 if [[ $silent -eq 0 ]]
 then    #Compilation with warnings
-    g++ -Wall -pedantic -Wextra -O2 "$cpath" -o '/tmp/.temporaryFile.out'
+    if [[ newg -eq 1 ]]
+    then
+        g++-8 -std=c++17 -Wall -pedantic -Wextra -O2 "$cpath" -o '/tmp/.temporaryFile.out'
+    else
+        g++ -Wall -pedantic -Wextra -O2 "$cpath" -o '/tmp/.temporaryFile.out'
+    fi
     if [[ "$?" != 0 ]]
     then
         echo "$(tput setaf 1)""Compilation error.""$(tput sgr0)" 
         exit 4
     fi
 else    #Compilation without warnings
-    g++ -O2 "$cpath" -o '/tmp/.temporaryFile.out'
+    if [[ newg -eq 1 ]]
+    then
+        g++-8 -std=c++17 -O2 "$cpath" -o '/tmp/.temporaryFile.out'
+    else
+        g++ -Wall -pedantic -Wextra -O2 "$cpath" -o '/tmp/.temporaryFile.out'
+    fi
     if [[ "$?" != 0 ]]
     then
         echo "$(tput setaf 1)""Compilation error.""$(tput sgr0)" 
