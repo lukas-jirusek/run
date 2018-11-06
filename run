@@ -371,9 +371,9 @@ then    #Compilation with warnings
 else    #Compilation without warnings
     if [[ newg -eq 1 ]]
     then
-        g++-8 -std=c++17 -O2 "$cpath" -o '/tmp/.temporaryFile.out'
+        g++-8 -std=c++17 -O2 "$cpath" -o '/tmp/.temporaryFile.out' 2>/dev/null
     else
-        g++ -Wall -pedantic -Wextra -O2 "$cpath" -o '/tmp/.temporaryFile.out'
+        g++ "$cpath" -o '/tmp/.temporaryFile.out' 2>/dev/null
     fi
     if [[ "$?" != 0 ]]
     then
